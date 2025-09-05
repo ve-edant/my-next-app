@@ -32,7 +32,8 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    console.log('PATCH request for user ID:', id);
+    const userId = id;
+    console.log('PATCH request for user ID:', userId);
 
     // Verify admin authentication
     const admin = getAdminFromRequest(request);
@@ -51,7 +52,7 @@ export async function PATCH(
     const body = await request.json();
     const { balance } = body;
 
-    console.log('Update balance request:', { userId: id, balance });
+    console.log('Update balance request:', { userId: userId, balance });
 
     // Validate balance
     if (balance === undefined || balance === null) {
@@ -71,7 +72,7 @@ export async function PATCH(
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { id: id }
+      where: { id: userId }
     });
 
     if (!existingUser) {
@@ -85,7 +86,7 @@ export async function PATCH(
 
     // Update user balance
     const updatedUser = await prisma.user.update({
-      where: { id: id },
+      where: { id: userId },
       data: { balance: numericBalance }
     });
 
@@ -115,8 +116,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    console.log('DELETE request for user ID:', id);
-    
+    const userId = id;
+    console.log('DELETE request for user ID:', userId);
+
     // Verify admin authentication
     const admin = getAdminFromRequest(request);
     
@@ -132,7 +134,7 @@ export async function DELETE(
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { id: id }
+      where: { id: userId }
     });
 
     if (!existingUser) {
@@ -162,7 +164,7 @@ export async function DELETE(
 
     // Soft delete user
     const deletedUser = await prisma.user.update({
-      where: { id: id },
+      where: { id: userId },
       data: { 
         isDeleted: true,
         deletedAt: new Date()
@@ -195,7 +197,8 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    console.log('GET request for user ID:', id);
+    const userId = id;
+    console.log('GET request for user ID:', userId);
 
     // Verify admin authentication
     const admin = getAdminFromRequest(request);
@@ -212,7 +215,7 @@ export async function GET(
 
     // Get user details
     const user = await prisma.user.findUnique({
-      where: { id: id }
+      where: { id: userId }
     });
 
     if (!user) {
