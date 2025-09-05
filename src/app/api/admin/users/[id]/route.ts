@@ -191,11 +191,12 @@ export async function DELETE(
 // GET - Get specific user details (optional)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('GET request for user ID:', params.id);
-    
+    const { id } = await params;
+    console.log('GET request for user ID:', id);
+
     // Verify admin authentication
     const admin = getAdminFromRequest(request);
     
@@ -211,7 +212,7 @@ export async function GET(
 
     // Get user details
     const user = await prisma.user.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     });
 
     if (!user) {
