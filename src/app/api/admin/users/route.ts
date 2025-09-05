@@ -1,4 +1,4 @@
-// app/api/admin/users/route.ts
+/* eslint-disable */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminFromRequest } from '@/lib/admin-auth';

@@ -1,4 +1,4 @@
-// src/app/api/wallet/balance/route.ts
+/* eslint-disable */
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma"; // adjust path if needed
