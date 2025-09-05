@@ -25,7 +25,7 @@ const SwapPage = () => {
   const [toAmount, setToAmount] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // 'from' or 'to'
-  const [coins, setCoins] = useState<CoinListItem>([]);
+  const [coins, setCoins] = useState<CoinListItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
 

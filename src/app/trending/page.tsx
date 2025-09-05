@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { CoinListItem } from "@/types/CoinsTypes";
+import { useRouter } from "next/navigation";
 
 const TrustWalletTrending = () => {
   const [isTimeFrameOpen, setIsTimeFrameOpen] = useState(false);
@@ -11,6 +12,7 @@ const TrustWalletTrending = () => {
   const [showNetworkModal, setShowNetworkModal] = useState(false);
   const [trendingData, setTrendingData] = useState<CoinListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const networks = ["All", "BNB Smart Chain", "Solana", "Ethereum", "Base"];
 
@@ -30,7 +32,9 @@ const TrustWalletTrending = () => {
         id: c.item.id,
         name: c.item.name,
         symbol: c.item.symbol,
-        logo: c.item.large || c.item.small || c.item.thumb,
+        large: c.item.large,
+        small: c.item.small,
+        thumb: c.item.thumb,
         marketCap: c.item.data?.market_cap
           ? Number(c.item.data.market_cap.replace(/[$,]/g, ""))
           : null,
@@ -175,10 +179,10 @@ const TrustWalletTrending = () => {
           {/* Button to open modal */}
           <button
             onClick={() => setIsTimeFrameOpen(true)}
-            className="px-4 py-2 bg-[#49ff91] text-black rounded-full font-medium"
+            className="px-4 py-2 bg-[#49ff91] text-black rounded-full font-medium  cursor-pointer"
           >
             {timeFrame}
-            <ChevronDown size={16} className="inline-block ml-1" />
+            <ChevronDown size={16} className="inline-block ml-1 cursor-pointer" />
           </button>
 
           {/* Modal */}
@@ -249,16 +253,16 @@ const TrustWalletTrending = () => {
         </div>
       ) : (
         /* Trending Coins List */
-        <div className="space-y-0">
+        <div className="space-y-2">
           {trendingData.map((coin, index) => (
-            <div key={coin.id} className="bg-[#1b1b1b] p-4">
+            <div onClick={() => router.push(`/trending/coin/${coin.id}`)} key={coin.id} className="bg-[#1b1b1b] px-4 py-2 cursor-pointer hover:bg-[#242424]">
               <div className="grid grid-cols-2 gap-4 items-center">
                 {/* Volume Column */}
                 <div className="flex items-center gap-3">
                   <img
-                    src={coin.large || coin.small || coin.thumb}
+                    src={coin.large}
                     alt={coin.name}
-                    className="w-8 h-8 rounded-full"
+                    className="w-10 h-10 rounded-full"
                   />
                   <div>
                     <div className="font-medium text-white">{coin.name}</div>
