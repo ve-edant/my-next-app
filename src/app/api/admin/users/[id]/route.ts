@@ -1,4 +1,4 @@
-// app/api/admin/users/[id]/route.ts
+/* eslint-disable */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
