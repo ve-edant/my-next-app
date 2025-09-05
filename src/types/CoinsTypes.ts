@@ -4,6 +4,7 @@ export type CoinListItem = {
   name: string;
   symbol: string;
   market_cap_rank: number;
+  image?: string;
   thumb: string;
   small: string;
   large: string;

@@ -1,10 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ArrowUpDown, Search, ChevronLeft } from "lucide-react";
-import { CoinListItem } from "@/types/CoinsTypes";
+
+type CoinShort = {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+}
 
 const SwapPage = () => {
-  const [fromCoin, setFromCoin] = useState({
+  const [fromCoin, setFromCoin] = useState<CoinShort>({
     id: "solana",
     symbol: "SOL",
     name: "Solana",
@@ -12,7 +19,7 @@ const SwapPage = () => {
     current_price: 0,
   });
 
-  const [toCoin, setToCoin] = useState({
+  const [toCoin, setToCoin] = useState<CoinShort>({
     id: "usd-coin",
     symbol: "USDC",
     name: "USD Coin",
@@ -25,7 +32,7 @@ const SwapPage = () => {
   const [toAmount, setToAmount] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(""); // 'from' or 'to'
-  const [coins, setCoins] = useState<CoinListItem[]>([]);
+  const [coins, setCoins] = useState<CoinShort[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -43,8 +50,8 @@ const SwapPage = () => {
       setCoins(data);
 
       // Update default coins with current prices
-      const solana = data.find((coin) => coin.id === "solana");
-      const usdc = data.find((coin) => coin.id === "usd-coin");
+      const solana = data.find((coin: {id: string}) => coin.id === "solana");
+      const usdc = data.find((coin: {id: string}) => coin.id === "usd-coin");
 
       if (solana) {
         setFromCoin((prev) => ({
@@ -68,7 +75,7 @@ const SwapPage = () => {
       coin.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCoinSelect = (coin) => {
+  const handleCoinSelect = (coin: CoinShort) => {
     if (modalType === "from") {
       setFromCoin(coin);
     } else {
@@ -88,7 +95,7 @@ const SwapPage = () => {
     setToAmount(tempAmount);
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number) => {
     if (!price) return "$0.00";
     if (price < 0.01) return `$${price.toFixed(6)}`;
     if (price < 1) return `$${price.toFixed(4)}`;
