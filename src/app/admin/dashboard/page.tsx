@@ -58,18 +58,23 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify({ balance: parseFloat(editBalance) }),
       });
-
+      
       if (response.ok) {
-        const updatedUser = await response.json();
+        const data = await response.json();
+        // Fix: Extract the user object from the response
+        const updatedUser = data.user;
+        
         setUsers(
           users.map((user) =>
-            user.id === userId ? { ...user, ...updatedUser } : user
+            user.id === userId ? updatedUser : user
           )
         );
         setEditingUserId(null);
         setEditBalance("");
+        setError(""); // Clear any previous errors
       } else {
-        setError("Failed to update balance");
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to update balance");
       }
     } catch (error) {
       setError("An error occurred while updating balance");
@@ -78,19 +83,24 @@ export default function AdminDashboard() {
 
   const handleDeleteUser = async (userId: string) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
-
+    
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: "DELETE",
       });
-
+      
       if (response.ok) {
-        const updatedUser = await response.json();
+        const data = await response.json();
+        // Fix: Extract the user object from the response
+        const deletedUser = data.user;
+        
         setUsers(
-          users.map((user) => (user.id === userId ? updatedUser : user))
+          users.map((user) => (user.id === userId ? deletedUser : user))
         );
+        setError(""); // Clear any previous errors
       } else {
-        setError("Failed to delete user");
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to delete user");
       }
     } catch (error) {
       setError("An error occurred while deleting user");
@@ -100,6 +110,7 @@ export default function AdminDashboard() {
   const cancelEdit = () => {
     setEditingUserId(null);
     setEditBalance("");
+    setError(""); // Clear any errors when canceling
   };
 
   const activeUsers = users.filter((user) => !user.isDeleted);
@@ -190,7 +201,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Active Users Table */}
         {/* Active Users Table */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
