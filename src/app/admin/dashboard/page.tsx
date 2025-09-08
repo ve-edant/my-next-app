@@ -1,28 +1,25 @@
+// src/app/admin/dashboard/page.tsx
 "use client";
-import React, { useState, useEffect } from "react";
-import { Trash2, Edit2, Save, X, Users, UserCheck, UserX } from "lucide-react";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: string;
-  clerkUserId: string;
+  imageUrl?: string | null;
   email: string;
-  firstName: string | null;
-  lastName: string | null;
-  imageUrl: string | null;
-  isAdmin: boolean;
-  isDeleted: boolean;
-  balance: number;
+  firstName?: string;
+  lastName?: string;
   createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
+  _count: {
+    coinWallets: number;
+  };
 }
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingUserId, setEditingUserId] = useState<string | null>(null);
-  const [editBalance, setEditBalance] = useState<string>("");
-  const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     fetchUsers();
@@ -34,346 +31,140 @@ export default function AdminDashboard() {
       if (response.ok) {
         const data = await response.json();
         setUsers(data);
-      } else {
-        setError("Failed to fetch users");
       }
     } catch (error) {
-      setError("An error occurred while fetching users");
+      console.error("Error fetching users:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditBalance = (userId: string, currentBalance: number) => {
-    setEditingUserId(userId);
-    setEditBalance(currentBalance.toString());
+  const handleUserClick = (userId: string) => {
+    router.push(`/admin/users/${userId}`);
   };
-
-  const handleSaveBalance = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ balance: parseFloat(editBalance) }),
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Fix: Extract the user object from the response
-        const updatedUser = data.user;
-        
-        setUsers(
-          users.map((user) =>
-            user.id === userId ? updatedUser : user
-          )
-        );
-        setEditingUserId(null);
-        setEditBalance("");
-        setError(""); // Clear any previous errors
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to update balance");
-      }
-    } catch (error) {
-      setError("An error occurred while updating balance");
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
-    
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: "DELETE",
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Fix: Extract the user object from the response
-        const deletedUser = data.user;
-        
-        setUsers(
-          users.map((user) => (user.id === userId ? deletedUser : user))
-        );
-        setError(""); // Clear any previous errors
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to delete user");
-      }
-    } catch (error) {
-      setError("An error occurred while deleting user");
-    }
-  };
-
-  const cancelEdit = () => {
-    setEditingUserId(null);
-    setEditBalance("");
-    setError(""); // Clear any errors when canceling
-  };
-
-  const activeUsers = users.filter((user) => !user.isDeleted);
-  const deletedUsers = users.filter((user) => user.isDeleted);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="max-w-lg mx-auto min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading users...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-2 text-gray-600">Manage users and their balances</p>
-        </div>
-
-        {error && (
-          <div className="mb-6 rounded-md bg-red-50 p-4">
-            <div className="text-sm text-red-700">{error}</div>
-          </div>
-        )}
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Users className="h-6 w-6 text-gray-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Total Users
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {users.length}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <UserCheck className="h-6 w-6 text-green-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Active Users
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {activeUsers.length}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <UserX className="h-6 w-6 text-red-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Deleted Users
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {deletedUsers.length}
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
+    <div className="max-w-lg mx-auto min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold text-gray-900">
+              Admin Dashboard
+            </h1>
+            <button
+              onClick={() => {
+                fetch("/api/admin/logout", { method: "POST" });
+                router.push("/admin/login");
+              }}
+              className="text-sm text-red-600 hover:text-red-700"
+            >
+              Logout
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Active Users Table */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Active Users
+      {/* Users List */}
+      <div className="px-4 py-4">
+        <div className="mb-4">
+          <h2 className="text-lg font-medium text-gray-900">
+            Users ({users.length})
           </h2>
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Balance
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Joined
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {activeUsers.map((user) => (
-                    <tr key={user.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {user.imageUrl && (
-                            <img
-                              className="h-10 w-10 rounded-full mr-4"
-                              src={user.imageUrl}
-                              alt=""
-                            />
-                          )}
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {user.firstName} {user.lastName}
-                            </div>
-                            {user.isAdmin && (
-                              <div className="text-xs text-indigo-600 font-medium">
-                                Admin
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {editingUserId === user.id ? (
-                          <div className="flex items-center space-x-2">
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={editBalance}
-                              onChange={(e) => setEditBalance(e.target.value)}
-                              className="w-20 px-2 py-1 border border-gray-300 rounded-md text-sm"
-                            />
-                            <button
-                              onClick={() => handleSaveBalance(user.id)}
-                              className="text-green-600 hover:text-green-700"
-                            >
-                              <Save className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              className="text-gray-400 hover:text-gray-600"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-2">
-                            <span>${user.balance}</span>
-                            <button
-                              onClick={() =>
-                                handleEditBalance(user.id, user.balance)
-                              }
-                              className="text-blue-600 hover:text-blue-700"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        {!user.isAdmin && (
-                          <button
-                            onClick={() => handleDeleteUser(user.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <p className="text-sm text-gray-600">
+            Click on a user to manage their coin wallets
+          </p>
         </div>
 
-        {/* Deleted Users Table */}
-        {deletedUsers.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Deleted Users
-            </h2>
-            <div className="bg-white shadow overflow-hidden sm:rounded-md opacity-60">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        User
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Balance
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Deleted At
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {deletedUsers.map((user) => (
-                      <tr key={`deleted-${user.id}`}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {user.imageUrl && (
-                              <img
-                                className="h-10 w-10 rounded-full mr-4"
-                                src={user.imageUrl}
-                                alt=""
-                              />
-                            )}
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {user.firstName} {user.lastName}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ${user.balance}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.deletedAt
-                            ? new Date(user.deletedAt).toLocaleDateString()
-                            : "N/A"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        <div className="space-y-3">
+          {users.map((user) => (
+            <div
+              key={user.id}
+              onClick={() => handleUserClick(user.id)}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4 overflow-hidden">
+                      {user.imageUrl ? (
+                        <img
+                          className="h-full w-full object-cover"
+                          src={user.imageUrl}
+                          alt={user.firstName || user.email || "User"}
+                        />
+                      ) : (
+                        <span className="text-blue-600 font-medium text-sm">
+                          {user.firstName && user.firstName.length > 0
+                            ? user.firstName[0].toUpperCase()
+                            : user.email && user.email.length > 0
+                            ? user.email[0].toUpperCase()
+                            : "U"}
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {user.firstName || user.lastName
+                          ? `${user.firstName || ""} ${
+                              user.lastName || ""
+                            }`.trim()
+                          : user.email}
+                      </h3>
+                      <p className="text-sm text-gray-600">{user.email}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                    {user._count.coinWallets}{" "}
+                    {user._count.coinWallets === 1 ? "Coin" : "Coins"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">
+                    Joined {new Date(user.createdAt).toLocaleDateString()}
+                  </span>
+                  <div className="flex items-center text-blue-600">
+                    <span>Manage</span>
+                    <svg
+                      className="w-4 h-4 ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        {users.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No users found</p>
           </div>
         )}
       </div>

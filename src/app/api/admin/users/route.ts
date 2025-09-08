@@ -16,10 +16,19 @@ export async function GET(request: NextRequest) {
 
     // Get all users (active and deleted)
     const users = await prisma.user.findMany({
-      orderBy: [
-        { isDeleted: 'asc' }, // Active users first
-        { createdAt: 'desc' }
-      ]
+      where: {
+        isDeleted: false,
+      },
+      include: {
+        _count: {
+          select: {
+            coinWallets: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return NextResponse.json(users);

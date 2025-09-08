@@ -31,8 +31,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const userId = id;
+    const userId = (await params).id;
     console.log('PATCH request for user ID:', userId);
 
     // Verify admin authentication
