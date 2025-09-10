@@ -69,13 +69,6 @@ const CryptoWalletLanding: React.FC = () => {
     router.push('/sign-up');
   };
 
-  const handleAdmin = (): void => {
-    router.push('/admin/login');
-  };
-
-  const handleDiscover = (): void => {
-    router.push('/discover');
-  };
 
   return (
     <div className="overflow-x-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen">
@@ -110,12 +103,6 @@ const CryptoWalletLanding: React.FC = () => {
             >
               Sign In
             </button>
-            <button 
-              onClick={handleAdmin}
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
-            >
-              Admin
-            </button>
           </div>
         </div>
       </header>
@@ -126,7 +113,7 @@ const CryptoWalletLanding: React.FC = () => {
           {/* Status Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 text-sm text-gray-300">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-            Trusted by 50M+ users
+            Trusted by 100K+ users
           </div>
           
           {/* Main Heading */}
