@@ -99,7 +99,7 @@ const CryptoWalletLanding: React.FC = () => {
           <div className="flex items-center gap-2">
             <button 
               onClick={handleSignIn}
-              className="px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors duration-200"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
             >
               Sign In
             </button>
